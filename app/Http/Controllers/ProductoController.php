@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Producto;
 use App\Models\Marca;
 use App\Models\Categoria;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreProductoRequest;
+use Illuminate\Support\Facades\Validator;
 
 
 class ProductoController extends Controller
@@ -17,7 +18,9 @@ class ProductoController extends Controller
      */
     public function index()
     {
-        echo "aqui va a ir el catalogo de productos";
+        $productos = Producto::all();
+        return view('productos.index')
+        ->with('productos', $productos);
     }
 
     /**
@@ -43,7 +46,7 @@ class ProductoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreProductoRequest $request)
     {
         
         
@@ -54,8 +57,16 @@ class ProductoController extends Controller
         $p->Precio = $request->precio;
         $p->marca_id = $request->marca;
         $p->categoria_id = $request->categoria;
+       //objeto file 
+       $archivo = $request->imagen;
+       $p-> imagen = $archivo->getClientOriginalName();
+       //ruta donde se almacena 
+       $ruta = public_path(). "/img";
+       $archivo->move($ruta, $archivo->getClientOriginalName());
         $p->save();
-        echo "Producto registrado";
+        return redirect('productos/create')
+            ->with('mensajito', "producto registrado correctamente");
+        
 
     }
 
